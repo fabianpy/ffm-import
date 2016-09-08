@@ -25,12 +25,22 @@ try {
         (6..<rows).each{r->
             HSSFRow row = sheet.getRow(r)
             if (row != null) {
+                String fecha = ANHO.toString().concat("-").concat((it+1).toString()).concat("-").concat(new Integer(row.getCell(1).numericCellValue.toInteger()).toString())
                 movimiento = new MovimientoBean()
-                movimiento.setFecha(new Date(ANHO, (it+1), row.getCell(1).numericCellValue.toInteger()))
+                movimiento.setFecha(java.sql.Date.valueOf(fecha))
                 movimiento.setMonto(new BigDecimal(row.getCell(4).numericCellValue))
                 movimiento.setConcepto(row.getCell(3).stringCellValue) //TODO insertar conceptos aparte
 
-                salida.execute("insert into movimiento (fecha, concepto, monto) values ( ${movimiento.getFecha()}, ${movimiento.getConcepto()}, ${movimiento.getMonto()} )")
+//                println("inserta fecha: ${movimiento.getFecha()} (${fecha}) (${ANHO} , ${it+1} , ${row.getCell(1).numericCellValue.toInteger()}) ; monto : ${movimiento.getMonto()} ; concepto : ${movimiento.getConcepto()} ")
+                salida.execute("insert into tmp_movimiento (fecha, concepto, monto) values ( ${movimiento.getFecha()}, ${movimiento.getConcepto()}, ${movimiento.getMonto()} )")
+
+
+//                movimiento = new MovimientoBean()
+//                movimiento.setFecha(new Date(ANHO, (it+1), row.getCell(1).numericCellValue.toInteger()))
+//                movimiento.setMonto(new BigDecimal(row.getCell(4).numericCellValue))
+//                movimiento.setConcepto(row.getCell(3).stringCellValue) //TODO insertar conceptos aparte
+//
+//                salida.execute("insert into tmp_movimiento (fecha, concepto, monto) values ( ${movimiento.getFecha()}, ${movimiento.getConcepto()}, ${movimiento.getMonto()} )")
 
 //                int cells = row.physicalNumberOfCells
 //                println "ROW " + row.rowNum + " has " + cells + " cell(s)."
@@ -59,7 +69,8 @@ try {
         }
     }
 
-    salida.execute("rollback;")
+    salida.execute("commit;")
+//    salida.execute("rollback;")
 } catch (Exception e) {
     salida.execute("rollback;")
     e.printStackTrace()
